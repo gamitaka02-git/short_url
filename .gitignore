@@ -1,0 +1,5 @@
+# .gitignore の内容
+admin/database.sqlite
+cookies.txt
+.DS_Store
+Thumbs.db

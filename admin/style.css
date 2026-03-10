@@ -1,0 +1,13 @@
+/* 
+ * UI固有のカスタムCSS
+ * - 制限ルールに基づきスタイル属性やstyleタグは使用せずここに記述します
+ */
+
+.copy-btn {
+    transition: all 0.2s ease-in-out;
+}
+
+/* モーダルの表示切替用 (Tailwindの flex ユーティリティと併用) */
+#editModal.active {
+    display: flex;
+}

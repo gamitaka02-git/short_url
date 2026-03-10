@@ -1,0 +1,10 @@
+
+# SQLite DBファイルへの直接アクセス禁止
+<Files "database.sqlite">
+    Require all denied
+</Files>
+
+# .htaccess, .htpasswdなどの隠しファイルへのアクセス禁止
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
