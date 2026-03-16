@@ -1,5 +1,6 @@
 <?php
-session_start();
+// init.php にリダイレクトとセッション開始があるので、最初に読み込む
+require_once __DIR__ . '/init.php';
 
 // すでにログイン済みの場合はメイン画面へ
 if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
@@ -7,59 +8,37 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
     exit;
 }
 
-$dbPath = __DIR__ . '/database.sqlite';
 $error = '';
+$success_message = '';
+
+// setup.phpからのリダイレクト時にメッセージがあれば取得
+if (isset($_SESSION['setup_success'])) {
+    $success_message = $_SESSION['setup_success'];
+    unset($_SESSION['setup_success']); // メッセージを削除
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     try {
-        if (!file_exists($dbPath)) {
-            // DBがまだない場合（初回アクセス前）、または初期状態の場合はエラー
-            $error = 'データベースが初期化されていません。最初に index.php にアクセスしてください。';
+        $pdo = new PDO('sqlite:' . $dbPath);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        // パスワードを取得
+        $stmt = $pdo->query("SELECT value FROM config WHERE key = 'admin_password'");
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row && password_verify($password, $row['value'])) {
+            // ログイン成功
+            $_SESSION['admin_logged_in'] = true;
+            header("Location: index.php");
+            exit;
         } else {
-            $pdo = new PDO('sqlite:' . $dbPath);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-            // index.phpを通らずにマイグレーション（configテーブル作成）が必要な場合のフォールバック
-            $pdo->exec("
-                CREATE TABLE IF NOT EXISTS config (
-                    key TEXT PRIMARY KEY,
-                    value TEXT
-                )
-            ");
-
-            // admin_passwordが存在するかチェック
-            $stmtCheck = $pdo->query("SELECT count(*) FROM config WHERE key = 'admin_password'");
-            if ($stmtCheck->fetchColumn() == 0) {
-                // なければ初期パスワード設定 (admin)
-                $initialPasswordHash = password_hash('admin', PASSWORD_DEFAULT);
-                $stmtConfig = $pdo->prepare("INSERT INTO config (key, value) VALUES ('admin_password', :hash)");
-                $stmtConfig->execute([':hash' => $initialPasswordHash]);
-            }
-
-            // パスワードを取得
-            $stmt = $pdo->query("SELECT value FROM config WHERE key = 'admin_password'");
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($row) {
-                $hash = $row['value'];
-
-                // 入力されたパスワードとDBのハッシュを比較
-                if (password_verify($password, $hash)) {
-                    // ログイン成功
-                    $_SESSION['admin_logged_in'] = true;
-                    header("Location: index.php");
-                    exit;
-                } else {
-                    $error = 'パスワードが間違っています。';
-                }
-            } else {
-                $error = 'パスワードが設定されていません。管理画面の初期設定を完了してください。';
-            }
+            $error = 'パスワードが間違っています。';
         }
+
     } catch (Exception $e) {
-        $error = "DBエラーが発生しました: " . $e->getMessage();
+        $error = "データベースエラーが発生しました: " . $e->getMessage();
     }
 }
 ?>
@@ -82,6 +61,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if ($error): ?>
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm" role="alert">
                 <?= htmlspecialchars($error) ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($success_message): ?>
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 text-sm" role="alert">
+                <?= htmlspecialchars($success_message) ?>
             </div>
         <?php endif; ?>
 

@@ -1,59 +1,13 @@
 <?php
-session_start();
+// セットアップチェックとセッション開始
+require_once __DIR__ . '/init.php';
 
-$dbPath = __DIR__ . '/database.sqlite';
-$isNewDB = !file_exists($dbPath);
-
-try {
-    $pdo = new PDO('sqlite:' . $dbPath);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    // テーブルがなければ作成
-    if ($isNewDB) {
-        $pdo->exec("
-            CREATE TABLE IF NOT EXISTS urls (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                keyword TEXT UNIQUE,
-                original_url TEXT,
-                click_count INTEGER DEFAULT 0,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        ");
-
-        // パスワード保存用のconfigテーブルも作成
-        $pdo->exec("
-            CREATE TABLE IF NOT EXISTS config (
-                key TEXT PRIMARY KEY,
-                value TEXT
-            )
-        ");
-
-        // 初期パスワードを 'admin' として保存
-        $initialPasswordHash = password_hash('admin', PASSWORD_DEFAULT);
-        $stmtConfig = $pdo->prepare("INSERT INTO config (key, value) VALUES ('admin_password', :hash)");
-        $stmtConfig->execute([':hash' => $initialPasswordHash]);
-    } else {
-        // 既存システム向け: configテーブルがなければ作成する（マイグレーション）
-        $pdo->exec("
-            CREATE TABLE IF NOT EXISTS config (
-                key TEXT PRIMARY KEY,
-                value TEXT
-            )
-        ");
-
-        // admin_passwordが存在するかチェック
-        $stmtCheck = $pdo->query("SELECT count(*) FROM config WHERE key = 'admin_password'");
-        if ($stmtCheck->fetchColumn() == 0) {
-            // なければ既存のhtpasswdから移行するか、初期パスワード設定
-            $initialPasswordHash = password_hash('admin', PASSWORD_DEFAULT);
-            $stmtConfig = $pdo->prepare("INSERT INTO config (key, value) VALUES ('admin_password', :hash)");
-            $stmtConfig->execute([':hash' => $initialPasswordHash]);
-        }
-    }
-} catch (Exception $e) {
-    die("DB Connection Error: " . $e->getMessage());
+// ログインチェック (init.php でセッションは開始済み)
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    header("Location: login.php");
+    exit;
 }
+
 // ログアウト処理
 if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     $_SESSION = array();
@@ -62,10 +16,12 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     exit;
 }
 
-// ログインチェック
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header("Location: login.php");
-    exit;
+// データベース接続
+try {
+    $pdo = new PDO('sqlite:' . $dbPath);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (Exception $e) {
+    die("DB Connection Error: " . $e->getMessage());
 }
 
 // REST (Fetch API) の処理
