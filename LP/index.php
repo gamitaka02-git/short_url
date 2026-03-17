@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>販売ページ - クイック・ショートURLツール</title>
+    <title>Short_URL｜サーバー設置型短縮URL生成ツール</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +12,7 @@
 <body>
     <div class="lp-container">
         <header>
-            <h1>URL短縮ツール PRO</h1>
+            <h1>Short_URL</h1>
             <p class="hero-description">
                 あなたのビジネスを加速させる、究極の短縮ツール。<br>
                 プロ仕様の管理機能を、今すぐあなたのドメインに。
@@ -21,8 +21,8 @@
 
         <div class="cta-section">
             <div class="price-box">
-                <p>期間限定特別プライス</p>
-                <span class="price-main">¥2,980</span>
+                <p>価格</p>
+                <span class="price-main">¥500</span>
                 <span class="price-unit">(本体価格)</span>
             </div>
             

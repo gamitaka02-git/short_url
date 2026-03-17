@@ -184,24 +184,165 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ======= 7. パスワード変更モーダル制御 =======
-    const passwordModal = document.getElementById('passwordModal');
-    const openPasswordModalBtn = document.getElementById('openPasswordModalBtn');
-    const closePasswordModalBtn = document.getElementById('closePasswordModal');
+    // ======= 7. 設定モーダル制御 =======
+    const settingsModal = document.getElementById('settingsModal');
+    const openSettingsModalBtn = document.getElementById('openSettingsModalBtn');
+    const closeSettingsModalBtn = document.getElementById('closeSettingsModal');
 
-    if (openPasswordModalBtn && passwordModal) {
-        openPasswordModalBtn.addEventListener('click', () => {
+    if (openSettingsModalBtn && settingsModal) {
+        openSettingsModalBtn.addEventListener('click', () => {
             if (passwordMessage) passwordMessage.classList.add('hidden');
             if (passwordForm) passwordForm.reset();
-            passwordModal.classList.remove('hidden');
-            passwordModal.classList.add('flex');
+            settingsModal.classList.remove('hidden');
+            settingsModal.classList.add('flex');
+            
+            // バッジが表示されていたら消す（確認したとみなす）
+            const updateBadge = document.getElementById('updateBadge');
+            if(updateBadge) updateBadge.classList.add('hidden');
         });
     }
 
-    if (closePasswordModalBtn && passwordModal) {
-        closePasswordModalBtn.addEventListener('click', () => {
-            passwordModal.classList.add('hidden');
-            passwordModal.classList.remove('flex');
+    if (closeSettingsModalBtn && settingsModal) {
+        closeSettingsModalBtn.addEventListener('click', () => {
+            settingsModal.classList.add('hidden');
+            settingsModal.classList.remove('flex');
+            resetUpdateUI();
         });
     }
+
+    // ======= 8. 更新チェック・自動アップデート =======
+    const checkUpdateBtn = document.getElementById('checkUpdateBtn');
+    const executeUpdateBtn = document.getElementById('executeUpdateBtn');
+    const updateResultArea = document.getElementById('updateResultArea');
+    const updateMessage = document.getElementById('updateMessage');
+    const updateDetails = document.getElementById('updateDetails');
+    const updateActionArea = document.getElementById('updateActionArea');
+    const updateBadge = document.getElementById('updateBadge');
+
+    function resetUpdateUI() {
+        if(updateResultArea) updateResultArea.classList.add('hidden');
+        if(updateActionArea) updateActionArea.classList.add('hidden');
+        if(updateDetails) {
+            updateDetails.classList.add('hidden');
+            updateDetails.textContent = '';
+        }
+        if(updateMessage) {
+            updateMessage.textContent = '';
+            updateMessage.className = 'mb-3 text-sm font-bold';
+        }
+    }
+
+    // 手動更新チェック
+    if(checkUpdateBtn) {
+        checkUpdateBtn.addEventListener('click', async () => {
+            const originalText = checkUpdateBtn.innerHTML;
+            checkUpdateBtn.disabled = true;
+            checkUpdateBtn.innerHTML = '<span class="animate-spin inline-block mr-2 text-white">⟳</span>チェック中...';
+            resetUpdateUI();
+
+            try {
+                const formData = new FormData();
+                formData.append('action', 'check');
+                const res = await fetch('update.php', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                updateResultArea.classList.remove('hidden');
+
+                if(data.success) {
+                    if(data.has_update) {
+                        updateMessage.textContent = `最新バージョン v${data.latest_version} が利用可能です！`;
+                        updateMessage.classList.add('text-green-600');
+                        
+                        // リリースノート等表示
+                        if(data.release_notes) {
+                            updateDetails.classList.remove('hidden');
+                            updateDetails.textContent = data.release_notes;
+                        }
+
+                        updateActionArea.classList.remove('hidden');
+                    } else {
+                        updateMessage.textContent = 'お使いのシステムは最新版です。';
+                        updateMessage.classList.add('text-blue-600');
+                    }
+                    
+                    // チェックした日付を保存しておく
+                    localStorage.setItem('last_shorturl_update_check', Date.now());
+                } else {
+                    updateMessage.textContent = data.message || 'チェックに失敗しました。';
+                    updateMessage.classList.add('text-red-600');
+                }
+            } catch(e) {
+                console.error(e);
+                updateResultArea.classList.remove('hidden');
+                updateMessage.textContent = '通信エラーが発生しました。';
+                updateMessage.classList.add('text-red-600');
+            } finally {
+                checkUpdateBtn.disabled = false;
+                checkUpdateBtn.innerHTML = originalText;
+            }
+        });
+    }
+
+    // アップデート実行
+    if(executeUpdateBtn) {
+        executeUpdateBtn.addEventListener('click', async () => {
+            if(!confirm('自動アップデートを開始します。一部ファイルの書き換えが行われます。\n事前にデータのバックアップを取ることをお勧めします。よろしいですか？')) return;
+
+            const originalText = executeUpdateBtn.innerHTML;
+            executeUpdateBtn.disabled = true;
+            executeUpdateBtn.innerHTML = '<span class="animate-spin inline-block mr-2 text-white">⟳</span>アップデート実行中 (数分かかる場合があります)...';
+            executeUpdateBtn.classList.replace('bg-green-600', 'bg-gray-400');
+            executeUpdateBtn.classList.replace('hover:bg-green-700', 'hover:bg-gray-400');
+
+            try {
+                const formData = new FormData();
+                formData.append('action', 'execute');
+                const res = await fetch('update.php', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if(data.success) {
+                    alert(data.message + '\n\n設定を反映するため、ページを再読み込みします。');
+                    location.reload();
+                } else {
+                    alert('アップデートエラー:\n' + (data.message || '不明なエラー'));
+                }
+            } catch(e) {
+                console.error(e);
+                alert('通信エラーが発生しました。アップデートが途中で失敗した可能性があります。');
+            } finally {
+                executeUpdateBtn.disabled = false;
+                executeUpdateBtn.innerHTML = originalText;
+                executeUpdateBtn.classList.replace('bg-gray-400', 'bg-green-600');
+                executeUpdateBtn.classList.replace('hover:bg-gray-400', 'hover:bg-green-700');
+            }
+        });
+    }
+
+    // バックグラウンド自動チェック (7日に1回)
+    async function autoCheckUpdate() {
+        const lastCheck = localStorage.getItem('last_shorturl_update_check');
+        const now = Date.now();
+        // 7 days = 7 * 24 * 60 * 60 * 1000 = 604800000 ms
+        if(!lastCheck || (now - parseInt(lastCheck)) > 604800000) {
+            try {
+                const formData = new FormData();
+                formData.append('action', 'check');
+                const res = await fetch('update.php', { method: 'POST', body: formData });
+                const data = await res.json();
+                
+                if(data.success) {
+                    localStorage.setItem('last_shorturl_update_check', Date.now());
+                    
+                    if(data.has_update && updateBadge) {
+                        updateBadge.classList.remove('hidden');
+                    }
+                }
+            } catch(e) {
+                console.error("Auto update check failed:", e);
+            }
+        }
+    }
+
+    // 読み込み時にバックグラウンドでポロッとチェックを流す
+    setTimeout(autoCheckUpdate, 2000);
 });

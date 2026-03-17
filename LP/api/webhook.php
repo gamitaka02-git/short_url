@@ -54,6 +54,38 @@ if ($event->type === 'checkout.session.completed') {
         $stmt->execute([$license_key, $customer_email]);
 
         error_log("License Issued: $license_key for $customer_email");
+
+        // --- ライセンスキーのメール送信処理 ---
+        mb_language("Japanese");
+        mb_internal_encoding("UTF-8");
+
+        $subject = "【重要】ライセンスキーのご送付 / Short_URL｜Gamitaka Tools";
+        
+        $body = "この度は「Short_URL」をご購入いただき、誠にありがとうございます。\n\n";
+        $body .= "以下の通り、ライセンスキーを発行いたしました。\n\n";
+        $body .= "【ライセンスキー】\n";
+        $body .= "{$license_key}\n\n";
+        $body .= "【設置・設定マニュアル】\n";
+        $body .= "以下のURLよりマニュアルをご参照の上、ツールの設置・設定をお願いいたします。\n";
+        $body .= "https://www.gamitaka.com/short_url/";
+        $body .= "【お問い合わせ先】\n";
+        $body .= "ご不明な点がございましたら、以下のメールアドレスまでお問い合わせください。\n";
+        $body .= (defined('SUPPORT_EMAIL') ? SUPPORT_EMAIL : '') . "\n\n";
+        $body .= "今後とも何卒よろしくお願い申し上げます。";
+
+        $from_email = defined('FROM_EMAIL') ? FROM_EMAIL : 'tools@gamitaka.com';
+        $headers = "From: " . $from_email . "\r\n";
+        if (defined('SUPPORT_EMAIL')) {
+            $headers .= "Reply-To: " . SUPPORT_EMAIL . "\r\n";
+        }
+        $headers .= "Content-Type: text/plain; charset=UTF-8";
+
+        // メール送信の成否をログに記録（失敗しても例外にせず後続の200 OKへ進む）
+        if (!mb_send_mail($customer_email, $subject, $body, $headers)) {
+            error_log("Mail Deliver Error: Failed to send license key to $customer_email");
+        } else {
+            error_log("Mail Delivered: License key sent to $customer_email");
+        }
     } catch (PDOException $e) {
         error_log("DB Error in Webhook: " . $e->getMessage());
         http_response_code(500);

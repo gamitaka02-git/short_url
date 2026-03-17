@@ -23,4 +23,12 @@ define('SECRET_TOKEN', 'YOUR_SUPER_SECRET_TOKEN');
 // 例: https://your-domain.com/short_url/admin/api/verify.php
 define('AUTH_SERVER_URL', 'https://your-domain.com/path/to/admin/api/verify.php');
 
+// --- ツール更新設定 ---
+// ツールのバージョン (アップデートチェック時に使用)
+define('TOOL_VERSION', '1.0.0');
+
+// 更新を確認するGitHubリポジトリ (owner/repo)
+// 通常は変更不要です。
+define('GITHUB_REPO', 'gamitaka02-git/short_url');
+
 ?>

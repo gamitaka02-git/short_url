@@ -231,8 +231,18 @@ $fullBaseUrl = $protocol . $domain . $dirStr;
         <div class="flex justify-between items-center mb-8">
             <h1 class="text-3xl font-bold text-blue-600">Short URL｜短縮URL生成ツール</h1>
             <div class="flex gap-2">
-                <button type="button" id="openPasswordModalBtn"
-                    class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition text-sm font-bold">パスワード変更</button>
+                <button type="button" id="openSettingsModalBtn"
+                    class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition text-sm font-bold flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    設定
+                    <span id="updateBadge" class="hidden flex h-3 w-3 relative ml-1">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                </button>
                 <a href="index.php?action=logout"
                     class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition text-sm font-bold">ログアウト</a>
             </div>
@@ -333,32 +343,77 @@ $fullBaseUrl = $protocol . $domain . $dirStr;
 
     </div>
 
-    <!-- パスワード変更モーダル -->
-    <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-xl relative">
-            <h3 class="text-lg font-bold mb-4 border-b pb-2 text-gray-700">管理画面のパスワード変更</h3>
-            <form id="passwordForm" class="space-y-4">
+    <!-- 設定モーダル (パスワード変更 & 更新チェック) -->
+    <div id="settingsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-2xl shadow-xl relative max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    設定
+                </h3>
+                <button type="button" id="closeSettingsModal" class="text-gray-400 hover:text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- パスワード変更セクション -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">新しいパスワード (4文字以上)</label>
-                    <input type="password" name="new_password" required minlength="4" placeholder="新しいパスワードを入力"
-                        class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-gray-500 focus:outline-none">
+                    <h4 class="text-md font-bold text-gray-700 mb-3 border-l-4 border-gray-500 pl-2">パスワード変更</h4>
+                    <form id="passwordForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">新しいパスワード (4文字以上)</label>
+                            <input type="password" name="new_password" required minlength="4" placeholder="新しいパスワードを入力"
+                                class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-gray-500 focus:outline-none bg-gray-50">
+                        </div>
+                        <div id="passwordMessage" class="hidden text-sm"></div>
+                        <button type="submit" class="w-full px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded shadow transition">変更する</button>
+                    </form>
+                    <p class="text-xs text-gray-500 mt-3 flex items-start gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        変更後、直ちにログアウトされ、新しいパスワードでの再ログインが必要になります。
+                    </p>
                 </div>
-                <div id="passwordMessage" class="hidden text-sm"></div>
-                <div class="flex justify-end gap-2 mt-6">
-                    <button type="button" id="closePasswordModal"
-                        class="px-4 py-2 border rounded bg-white hover:bg-gray-100 text-gray-700 font-medium">キャンセル</button>
-                    <button type="submit"
-                        class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded shadow">変更する</button>
+
+                <!-- 更新チェックセクション -->
+                <div>
+                    <h4 class="text-md font-bold text-gray-700 mb-3 border-l-4 border-blue-500 pl-2">システムの更新</h4>
+                    <div class="bg-blue-50 p-4 rounded-lg text-sm mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-blue-800 font-medium">現在のバージョン:</span>
+                            <span class="bg-blue-200 text-blue-800 px-2 py-0.5 rounded font-bold"><?= defined('TOOL_VERSION') ? TOOL_VERSION : '1.0.0' ?></span>
+                        </div>
+                        <button type="button" id="checkUpdateBtn" class="w-full mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded shadow transition flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            最新バージョンをチェック
+                        </button>
+                    </div>
+                    
+                    <div id="updateResultArea" class="hidden">
+                        <div id="updateMessage" class="mb-3 text-sm font-bold"></div>
+                        <div id="updateDetails" class="bg-gray-50 p-3 rounded border text-xs text-gray-700 mb-3 hidden max-h-32 overflow-y-auto whitespace-pre-wrap"></div>
+                        
+                        <div id="updateActionArea" class="hidden">
+                            <button type="button" id="executeUpdateBtn" class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded shadow transition flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                最新版へアップデート
+                            </button>
+                            <p class="text-xs text-red-500 mt-2">※アップデート実行前に、必ずデータのバックアップを取ることを推奨します。自動更新によるファイル上書きが行われます。</p>
+                        </div>
+                    </div>
                 </div>
-            </form>
-            <p class="text-xs text-gray-400 mt-4 flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                変更後、直ちにログアウトされ、新しいパスワードでの再ログインが必要になります。
-            </p>
+            </div>
         </div>
     </div>
 

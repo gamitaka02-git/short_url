@@ -1,0 +1,245 @@
+<?php
+// update.php - 更新チェック＆自動アップデートAPI
+require_once __DIR__ . '/init.php';
+
+// ログインチェック
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    header('HTTP/1.1 403 Forbidden');
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
+}
+
+header('Content-Type: application/json; charset=utf-8');
+
+$action = $_POST['action'] ?? ($_GET['action'] ?? '');
+
+// ---------------------------------------------------------
+// ユーティリティ関数（先に定義）
+// ---------------------------------------------------------
+
+/**
+ * ディレクトリごとコピーする（再帰処理）
+ * $exclude_paths に含まれるファイルは上書きしない
+ */
+function update_plugin_copy_files($src, $dst, $base_dst) {
+    if (!is_dir($src)) {
+        return;
+    }
+    
+    // 除外リスト (相対パスで指定)
+    $exclude_paths = [
+        'admin/database.sqlite',
+        'admin/config.php'
+    ];
+
+    $dir = opendir($src);
+    if (!is_dir($dst)) {
+        mkdir($dst, 0755, true);
+    }
+
+    while (false !== ($file = readdir($dir))) {
+        if (($file != '.') && ($file != '..')) {
+            $srcFile = $src . '/' . $file;
+            $dstFile = $dst . '/' . $file;
+            
+            // コピー先パスからツールルートまでの相対パスを生成して除外判定
+            $relative_path = ltrim(str_replace($base_dst, '', $dstFile), '/');
+            
+            if (in_array($relative_path, $exclude_paths)) {
+                // 保護対象ファイルはスキップ
+                continue;
+            }
+
+            if (is_dir($srcFile)) {
+                update_plugin_copy_files($srcFile, $dstFile, $base_dst);
+            } else {
+                if (!copy($srcFile, $dstFile)) {
+                    throw new Exception("ファイル {$relative_path} の上書きに失敗しました。");
+                }
+            }
+        }
+    }
+    closedir($dir);
+}
+
+/**
+ * ディレクトリごと削除する（再帰処理）
+ */
+function update_plugin_remove_dir($dir) {
+    if (!is_dir($dir)) {
+        return;
+    }
+    $objects = scandir($dir);
+    foreach ($objects as $object) {
+        if ($object != "." && $object != "..") {
+            if (is_dir($dir . DIRECTORY_SEPARATOR . $object) && !is_link($dir . "/" . $object)) {
+                update_plugin_remove_dir($dir . DIRECTORY_SEPARATOR . $object);
+            } else {
+                unlink($dir . DIRECTORY_SEPARATOR . $object);
+            }
+        }
+    }
+    rmdir($dir);
+}
+
+// ---------------------------------------------------------
+// アクション処理
+// ---------------------------------------------------------
+
+if ($action === 'check') {
+    // GitHub Releases APIから最新バージョンを取得
+    $repo = defined('GITHUB_REPO') ? GITHUB_REPO : 'gamitaka02-git/short_url';
+    $url = "https://api.github.com/repos/{$repo}/releases/latest";
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'ShortUrl-Updater'); // GitHub APIはUser-Agent必須
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode === 200 && $response) {
+        $data = json_decode($response, true);
+        if ($data && isset($data['tag_name'])) {
+            $latest_version = ltrim($data['tag_name'], 'v.'); // v.1.0.0 -> 1.0.0
+            $current_version = defined('TOOL_VERSION') ? TOOL_VERSION : '1.0.0';
+
+            $has_update = version_compare($latest_version, $current_version, '>');
+
+            echo json_encode([
+                'success' => true,
+                'has_update' => $has_update,
+                'current_version' => $current_version,
+                'latest_version' => $latest_version,
+                'release_notes' => $data['body'] ?? '',
+                'published_at' => $data['published_at'] ?? '',
+                'download_url' => $data['html_url'] ?? ''
+            ]);
+            exit;
+        }
+    }
+
+    echo json_encode(['success' => false, 'message' => 'バージョン情報の取得に失敗しました。']);
+    exit;
+}
+
+if ($action === 'execute') {
+    // 自動アップデートの実行処理
+    
+    // APIから最新Release情報を再取得してzipのURLを得る
+    $repo = defined('GITHUB_REPO') ? GITHUB_REPO : 'gamitaka02-git/short_url';
+    $url = "https://api.github.com/repos/{$repo}/releases/latest";
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'ShortUrl-Updater');
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode !== 200 || !$response) {
+        echo json_encode(['success' => false, 'message' => 'リリース情報の取得に失敗しました。']);
+        exit;
+    }
+
+    $data = json_decode($response, true);
+    if (!$data || empty($data['zipball_url'])) {
+        echo json_encode(['success' => false, 'message' => 'ZIPダウンロードURLが見つかりません。']);
+        exit;
+    }
+
+    $zip_url = $data['zipball_url'];
+    $tmp_dir = __DIR__ . '/_tmp_update_' . time();
+    $zip_file = $tmp_dir . '/update.zip';
+
+    // 一時ディレクトリ作成
+    if (!mkdir($tmp_dir, 0755, true)) {
+        echo json_encode(['success' => false, 'message' => '一時ディレクトリの作成に失敗しました。パーミッションを確認してください。']);
+        exit;
+    }
+
+    // ZIPダウンロード
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $zip_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'ShortUrl-Updater');
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // GitHubのzipballはリダイレクトされるため必須
+    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+    $zip_data = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    curl_close($ch);
+
+    if ($httpCode !== 200 || $zip_data === false) {
+        update_plugin_remove_dir($tmp_dir);
+        echo json_encode(['success' => false, 'message' => 'アップデートファイルのダウンロードに失敗しました。' . $error]);
+        exit;
+    }
+
+    file_put_contents($zip_file, $zip_data);
+
+    // ZIP展開
+    $zip = new ZipArchive;
+    if ($zip->open($zip_file) === true) {
+        $extract_dir = $tmp_dir . '/extracted';
+        mkdir($extract_dir, 0755, true);
+        $zip->extractTo($extract_dir);
+        $zip->close();
+    } else {
+        update_plugin_remove_dir($tmp_dir);
+        echo json_encode(['success' => false, 'message' => 'ZIPファイルの展開に失敗しました。']);
+        exit;
+    }
+
+    // GitHubからのZIP解凍時、中身は "owner-repo-hash/" のようなルートフォルダに入る
+    $extracted_folders = array_diff(scandir($extract_dir), array('.', '..'));
+    $extracted_root = '';
+    foreach ($extracted_folders as $f) {
+        if (is_dir($extract_dir . '/' . $f)) {
+            $extracted_root = $extract_dir . '/' . $f . '/short_url'; // 'short_url' 配下が実際のツールファイル
+            break;
+        }
+    }
+
+    if (empty($extracted_root) || !is_dir($extracted_root)) {
+        update_plugin_remove_dir($tmp_dir);
+        echo json_encode(['success' => false, 'message' => 'アップデートファイル内に必要なデータが見つかりませんでした。']);
+        exit;
+    }
+
+    // 更新対象ディレクトリ（ツールのルートディレクトリ）
+    $target_dir = dirname(__DIR__); // __DIR__ は admin。その親が short_url
+
+    // ファイルの上書き実行 (保護するファイルを除外)
+    try {
+        update_plugin_copy_files($extracted_root, $target_dir, $target_dir);
+        $success = true;
+    } catch (Exception $e) {
+        $success = false;
+        $error_msg = $e->getMessage();
+    }
+
+    // 後始末
+    update_plugin_remove_dir($tmp_dir);
+
+    if (isset($success) && $success) {
+        echo json_encode([
+            'success' => true,
+            'message' => 'アップデートが正常に完了しました。最新バージョンに更新されました。'
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false,
+            'message' => 'ファイルの上書きに失敗しました。権限を確認してください。エラー詳細: ' . (isset($error_msg) ? $error_msg : '')
+        ]);
+    }
+    exit;
+}
+
+echo json_encode(['success' => false, 'message' => '不正なリクエストです。']);
+exit;
