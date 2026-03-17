@@ -3,6 +3,8 @@ admin/database.sqlite
 cookies.txt
 .DS_Store
 Thumbs.db
+LP/
+LP/*
 
 # Security
 admin/config.php
