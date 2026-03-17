@@ -16,13 +16,89 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     exit;
 }
 
-// データベース接続
-try {
-    $pdo = new PDO('sqlite:' . $dbPath);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (Exception $e) {
-    die("DB Connection Error: " . $e->getMessage());
+// --- ライセンス認証 ---
+
+global $pdo; // init.php で定義された $pdo を使用
+
+// ライセンスキーがPOSTされたら保存
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['license_key_update'])) {
+    $new_license_key = trim($_POST['license_key']);
+
+    // configテーブルにlicense_keyがあるか確認
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM config WHERE key = 'license_key'");
+    $stmt->execute();
+    $exists = $stmt->fetchColumn() > 0;
+
+    if ($exists) {
+        $stmt = $pdo->prepare("UPDATE config SET value = :value WHERE key = 'license_key'");
+    } else {
+        $stmt = $pdo->prepare("INSERT INTO config (key, value) VALUES ('license_key', :value)");
+    }
+    $stmt->execute([':value' => $new_license_key]);
+    
+    // 更新後はセッションの認証フラグをリセット
+    unset($_SESSION['license_verified']);
+    
+    // ページを再読み込みしてGETリクエストに戻す
+    header('Location: index.php');
+    exit;
 }
+
+// DBからライセンスキーを取得
+try {
+    $stmt = $pdo->prepare("SELECT value FROM config WHERE key = 'license_key'");
+    $stmt->execute();
+    $license_key = $stmt->fetchColumn();
+    if ($license_key === false) {
+        $license_key = '';
+    }
+} catch (Exception $e) {
+    $license_key = '';
+}
+
+
+// ライセンスキーが空、または認証失敗の場合
+if (empty($license_key) || !check_license($license_key)) {
+    // 認証失敗時のUIを表示して終了
+    ?>
+    <!DOCTYPE html>
+    <html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ライセンス認証</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gray-100 flex items-center justify-center h-screen">
+        <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-md border-t-4 border-red-600">
+            <h1 class="text-2xl font-bold text-center text-gray-800 mb-2">ライセンス認証が必要です</h1>
+            <p class="text-center text-gray-600 mb-6">このツールを使用するには、有効なライセンスキーを入力して認証を行ってください。</p>
+            
+            <?php if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($license_key)): ?>
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+                    <p class="font-bold">認証エラー</p>
+                    <p>入力されたライセンスキーは無効か、有効期限が切れています。ご確認ください。</p>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST" action="index.php">
+                <input type="hidden" name="license_key_update" value="1">
+                <div class="mb-4">
+                    <label for="license_key" class="block text-sm font-medium text-gray-700 mb-2">ライセンスキー</label>
+                    <input type="text" id="license_key" name="license_key" class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-red-500 focus:outline-none" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" required>
+                </div>
+                <button type="submit" class="w-full bg-red-600 text-white font-bold py-2 px-4 rounded hover:bg-red-700 transition shadow">認証する</button>
+            </form>
+            <p class="text-xs text-gray-500 text-center mt-4">ライセンスキーをお持ちでない場合は、提供元にお問い合わせください。</p>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit; // ここでスクリプトの実行を停止
+}
+
+// --- ライセンス認証ここまで ---
+
 
 // REST (Fetch API) の処理
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
