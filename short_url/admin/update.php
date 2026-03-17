@@ -87,25 +87,30 @@ function update_plugin_remove_dir($dir) {
 // ---------------------------------------------------------
 
 if ($action === 'check') {
-    // GitHub Releases APIから最新バージョンを取得
+    // GitHub Releases APIからリリース一覧を取得（latestはプレリリースが含まれない場合に404を返すため）
     $repo = defined('GITHUB_REPO') ? GITHUB_REPO : 'gamitaka02-git/short_url';
-    $url = "https://api.github.com/repos/{$repo}/releases/latest";
+    $url = "https://api.github.com/repos/{$repo}/releases";
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_USERAGENT, 'ShortUrl-Updater'); // GitHub APIはUser-Agent必須
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    // Xserver等での通信エラー回避用
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curl_error = curl_error($ch);
     curl_close($ch);
 
     if ($httpCode === 200 && $response) {
-        $data = json_decode($response, true);
-        if ($data && isset($data['tag_name'])) {
-            $latest_version = ltrim($data['tag_name'], 'v.'); // v.1.0.0 -> 1.0.0
-            $current_version = defined('TOOL_VERSION') ? TOOL_VERSION : '1.0.0';
+        $data_list = json_decode($response, true);
+        if (is_array($data_list) && isset($data_list[0])) {
+            $data = $data_list[0]; // 先頭のリリースを使用
+            $latest_version = ltrim($data['tag_name'], 'v.'); // v1.0.1 or v.1.0.1 -> 1.0.1
+            $current_version = defined('TOOL_VERSION') ? ltrim(TOOL_VERSION, 'v.') : '1.0.0';
 
             $has_update = version_compare($latest_version, $current_version, '>');
 
@@ -122,7 +127,7 @@ if ($action === 'check') {
         }
     }
 
-    echo json_encode(['success' => false, 'message' => 'バージョン情報の取得に失敗しました。']);
+    echo json_encode(['success' => false, 'message' => "バージョン情報の取得に失敗しました。(HTTP:{$httpCode} / Error:{$curl_error})"]);
     exit;
 }
 
@@ -131,13 +136,15 @@ if ($action === 'execute') {
     
     // APIから最新Release情報を再取得してzipのURLを得る
     $repo = defined('GITHUB_REPO') ? GITHUB_REPO : 'gamitaka02-git/short_url';
-    $url = "https://api.github.com/repos/{$repo}/releases/latest";
+    $url = "https://api.github.com/repos/{$repo}/releases";
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_USERAGENT, 'ShortUrl-Updater');
     curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
@@ -147,8 +154,14 @@ if ($action === 'execute') {
         exit;
     }
 
-    $data = json_decode($response, true);
-    if (!$data || empty($data['zipball_url'])) {
+    $data_list = json_decode($response, true);
+    if (!is_array($data_list) || !isset($data_list[0])) {
+        echo json_encode(['success' => false, 'message' => 'リリース情報が見つかりません。']);
+        exit;
+    }
+
+    $data = $data_list[0];
+    if (empty($data['zipball_url'])) {
         echo json_encode(['success' => false, 'message' => 'ZIPダウンロードURLが見つかりません。']);
         exit;
     }
@@ -170,6 +183,8 @@ if ($action === 'execute') {
     curl_setopt($ch, CURLOPT_USERAGENT, 'ShortUrl-Updater');
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // GitHubのzipballはリダイレクトされるため必須
     curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     $zip_data = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $error = curl_error($ch);
