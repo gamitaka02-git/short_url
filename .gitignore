@@ -6,6 +6,7 @@ Thumbs.db
 LP/
 LP/*
 
+
 # Security
 admin/config.php
 admin/*.log
