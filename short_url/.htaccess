@@ -1,0 +1,17 @@
+# HTTPSの強制（必要に応じて有効化してください）
+# RewriteEngine On
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+RewriteEngine On
+RewriteBase /short_url/
+
+# adminディレクトリ、LPディレクトリ、実ファイルはリライト対象外
+RewriteCond %{REQUEST_URI} ^/short_url/admin/ [OR]
+RewriteCond %{REQUEST_URI} ^/short_url/LP/ [OR]
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# それ以外はすべて index.php へ送る（スラッグとして処理）
+RewriteRule ^(.*)$ index.php?slug=$1 [L,QSA]

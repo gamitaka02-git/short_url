@@ -1,12 +1,18 @@
-# .gitignore の内容
-admin/database.sqlite
-cookies.txt
+# .gitignore (共通)
 .DS_Store
 Thumbs.db
-LP/
-LP/*
+cookies.txt
 
+# --- 配布用ツール (short_url) ---
+short_url/admin/config.php
+short_url/admin/database.sqlite
+short_url/admin/*.log
 
-# Security
-admin/config.php
-admin/*.log
+# --- 販売・管理側 (LP) ---
+LP/admin/config.php
+LP/admin/database.sqlite
+LP/admin/*.log
+LP/admin/stripe-php/
+
+# --- システム/ドキュメント ---
+docs/

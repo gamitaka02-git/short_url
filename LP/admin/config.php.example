@@ -1,0 +1,26 @@
+<?php
+
+// ===============================================================
+// SECURITY CONFIGURATION EXAMPLE
+// このファイルは設定ファイルの雛形です。
+// ファイル名を 'config.php' にリネームし、以下の値をあなたの環境に合わせて設定してください。
+// ===============================================================
+
+// --- データベース接続情報 (認証サーバー用) ---
+// ライセンス情報を管理するMySQLデータベースの接続情報
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'your_database_name'); 
+define('DB_USER', 'your_database_user'); 
+define('DB_PASS', 'your_database_password'); 
+
+// --- APIシークレットトークン ---
+// クライアント(ツール)と認証サーバー(verify.php)間の通信を保護するための秘密のトークン
+// 可能な限り長く、複雑で、推測困難な文字列を設定してください。
+define('SECRET_TOKEN', 'YOUR_SUPER_SECRET_TOKEN'); 
+
+// --- ライセンス認証サーバーのURL (クライアント用) ---
+// ツールがライセンス認証のためにアクセスする自身の認証サーバー(verify.php)のURL
+// 例: https://your-domain.com/short_url/LP/api/verify.php
+define('AUTH_SERVER_URL', 'https://your-domain.com/path/to/LP/api/verify.php');
+
+?>
