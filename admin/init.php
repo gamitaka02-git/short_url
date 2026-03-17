@@ -35,9 +35,8 @@ if (!$setup_done) {
     exit;
 }
 
-// ライセンス認証サーバーの情報
-define('AUTH_SERVER_URL', 'https://gamitaka.com/short_url/admin/api/verify.php'); // TODO: 後で実際のURLに変更
-define('SECRET_TOKEN', 'ShortUrl_2026_Secret_998877'); // verify.phpと一致させる
+// 設定ファイルを読み込む
+require_once __DIR__ . '/config.php';
 
 /**
  * ライセンスキーを認証サーバーで検証する

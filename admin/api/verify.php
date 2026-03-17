@@ -1,10 +1,6 @@
 <?php
-// データベース接続情報とシークレットトークンを定義
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'gamitaka01_short'); 
-define('DB_USER', 'gamitaka01_tube'); 
-define('DB_PASS', 'c48ishigami'); 
-define('SECRET_TOKEN', 'ShortUrl_2026_Secret_998877'); 
+// 設定ファイルを読み込む
+require_once __DIR__ . '/../config.php'; 
 
 header('Content-Type: application/json');
 
