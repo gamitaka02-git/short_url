@@ -3,6 +3,10 @@
 require_once __DIR__ . '/../admin/config.php';
 require_once __DIR__ . '/../admin/stripe-php/init.php';
 
+// この商品の価格ID（Stripeダッシュボードから取得）
+// 同一Stripeアカウントで複数商品を扱う場合、自分の商品以外のイベントを無視するために使用
+define('EXPECTED_PRICE_ID', 'price_1TBBmzEzNfjI6wO479x9DR7X');
+
 // データベース接続関数
 function get_db_connection()
 {
@@ -38,6 +42,19 @@ try {
 // 3. 決済完了イベントの処理
 if ($event->type === 'checkout.session.completed') {
     $session = $event->data->object;
+
+    // --- Price ID による商品フィルタリング ---
+    // 同一Stripeアカウントで複数Webhookを運用している場合、
+    // 自分の商品以外の購入イベントを無視する
+    $line_items = \Stripe\Checkout\Session::allLineItems($session->id, ['limit' => 1]);
+    $purchased_price_id = $line_items->data[0]->price->id ?? null;
+
+    if ($purchased_price_id !== EXPECTED_PRICE_ID) {
+        error_log("Short_URL Webhook: 対象外の商品のため処理をスキップ (price_id: $purchased_price_id)");
+        http_response_code(200);
+        exit();
+    }
+
     $customer_email = $session->customer_details->email;
 
     // ランダムなライセンスキー生成 (例: SU-ABCD-1234-EFGH)
@@ -67,21 +84,27 @@ if ($event->type === 'checkout.session.completed') {
         $body .= "{$license_key}\n\n";
         $body .= "【設置・設定マニュアル】\n";
         $body .= "以下のURLよりマニュアルをご参照の上、ツールの設置・設定をお願いいたします。\n";
-        $body .= "https://www.gamitaka.com/short_url/";
+        $body .= "https://www.gamitaka.com/short_url/\n\n";
         $body .= "【お問い合わせ先】\n";
         $body .= "ご不明な点がございましたら、以下のメールアドレスまでお問い合わせください。\n";
-        $body .= (defined('SUPPORT_EMAIL') ? SUPPORT_EMAIL : '') . "\n\n";
+        $body .= (defined('SUPPORT_EMAIL') ? SUPPORT_EMAIL : 'tools@gamitaka.com') . "\n\n";
         $body .= "今後とも何卒よろしくお願い申し上げます。";
 
         $from_email = defined('FROM_EMAIL') ? FROM_EMAIL : 'tools@gamitaka.com';
-        $headers = "From: " . $from_email . "\r\n";
-        if (defined('SUPPORT_EMAIL')) {
-            $headers .= "Reply-To: " . SUPPORT_EMAIL . "\r\n";
-        }
-        $headers .= "Content-Type: text/plain; charset=UTF-8";
+        $support_email = defined('SUPPORT_EMAIL') ? SUPPORT_EMAIL : $from_email;
+
+        // 送信元表示名（日本語をMIMEエンコード）
+        $from_name = mb_encode_mimeheader("Short_URL 開発事務局", "UTF-8", "B") . " <{$from_email}>";
+
+        // メールヘッダー
+        $headers  = "MIME-Version: 1.0\r\n";
+        $headers .= "From: " . $from_name . "\r\n";
+        $headers .= "Reply-To: " . $support_email . "\r\n";
+        $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+        $headers .= "Content-Transfer-Encoding: 8bit";
 
         // メール送信の成否をログに記録（失敗しても例外にせず後続の200 OKへ進む）
-        if (!mb_send_mail($customer_email, $subject, $body, $headers)) {
+        if (!mb_send_mail($customer_email, $subject, $body, $headers, "-f {$from_email}")) {
             error_log("Mail Deliver Error: Failed to send license key to $customer_email");
         } else {
             error_log("Mail Delivered: License key sent to $customer_email");
