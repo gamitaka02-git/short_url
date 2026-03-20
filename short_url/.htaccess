@@ -4,13 +4,16 @@
 # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
 RewriteEngine On
-RewriteBase /short_url/
 
 # adminディレクトリ、LPディレクトリ、実ファイルはリライト対象外
-RewriteCond %{REQUEST_URI} ^/short_url/admin/ [OR]
-RewriteCond %{REQUEST_URI} ^/short_url/LP/ [OR]
+# 設置フォルダ名に依存しないように記述を汎用化
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# admin または LP のパスを含む場合はそのままアクセス
+RewriteCond %{REQUEST_URI} /admin/ [OR]
+RewriteCond %{REQUEST_URI} /LP/
 RewriteRule ^ - [L]
 
 # それ以外はすべて index.php へ送る（スラッグとして処理）
