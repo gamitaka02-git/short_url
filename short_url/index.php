@@ -31,6 +31,13 @@ try {
         $update->bindValue(':id', $row['id'], PDO::PARAM_INT);
         $update->execute();
 
+        // クリックログを記録（日時・リファラ）
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+        $log = $pdo->prepare("INSERT INTO click_logs (url_id, clicked_at, referer) VALUES (:url_id, DATETIME('now', 'localtime'), :referer)");
+        $log->bindValue(':url_id', $row['id'], PDO::PARAM_INT);
+        $log->bindValue(':referer', $referer, PDO::PARAM_STR);
+        $log->execute();
+
         // 302キャッシュ防止のリダイレクト
         header("Location: " . $row['original_url'], true, 302);
         exit;

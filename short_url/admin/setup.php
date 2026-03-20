@@ -61,6 +61,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 )
             ");
 
+            // 1.5. click_logs テーブル作成（クリック解析用）
+            $pdo->exec("
+                CREATE TABLE IF NOT EXISTS click_logs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    url_id INTEGER NOT NULL,
+                    clicked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    referer TEXT DEFAULT '',
+                    FOREIGN KEY (url_id) REFERENCES urls(id) ON DELETE CASCADE
+                )
+            ");
+
             // 2. config テーブル作成
             $pdo->exec("
                 CREATE TABLE IF NOT EXISTS config (

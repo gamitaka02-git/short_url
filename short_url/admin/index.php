@@ -163,6 +163,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    if ($action === 'click_logs') {
+        $url_id = $_POST['url_id'] ?? '';
+
+        if (empty($url_id)) {
+            echo json_encode(['success' => false, 'message' => '不正なリクエストです。']);
+            exit;
+        }
+
+        // URL情報を取得
+        $urlStmt = $pdo->prepare("SELECT keyword, click_count FROM urls WHERE id = :id LIMIT 1");
+        $urlStmt->execute([':id' => $url_id]);
+        $urlInfo = $urlStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$urlInfo) {
+            echo json_encode(['success' => false, 'message' => '該当するURLが見つかりません。']);
+            exit;
+        }
+
+        // クリックログを取得（新しい順）
+        $logStmt = $pdo->prepare("SELECT id, clicked_at, referer FROM click_logs WHERE url_id = :url_id ORDER BY clicked_at DESC");
+        $logStmt->execute([':url_id' => $url_id]);
+        $logs = $logStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode([
+            'success' => true,
+            'keyword' => $urlInfo['keyword'],
+            'click_count' => $urlInfo['click_count'],
+            'logs' => $logs
+        ]);
+        exit;
+    }
+
     if ($action === 'password') {
         $newPassword = $_POST['new_password'] ?? '';
 
@@ -288,8 +320,10 @@ $fullBaseUrl = $protocol . $domain . $dirStr;
                             class="border rounded p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-gray-50 transition border-gray-200">
                             <div class="overflow-hidden w-full md:w-2/3">
                                 <div class="flex items-center gap-2 mb-1">
-                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-bold rounded">クリック:
-                                        <?= htmlspecialchars($item['click_count']) ?></span>
+                                    <button type="button" class="click-log-btn px-2 py-1 bg-green-100 text-green-800 text-xs font-bold rounded cursor-pointer hover:bg-green-200 transition"
+                                        data-id="<?= $item['id'] ?>" data-keyword="<?= htmlspecialchars($item['keyword']) ?>"
+                                        title="クリック解析を表示">📊 クリック:
+                                        <?= htmlspecialchars($item['click_count']) ?></button>
                                     <span class="text-xs text-gray-400"><?= htmlspecialchars($item['created_at']) ?></span>
                                 </div>
                                 <p class="text-sm text-gray-600 truncate mb-1"
@@ -339,8 +373,55 @@ $fullBaseUrl = $protocol . $domain . $dirStr;
             <?php endif; ?>
         </div>
 
+    </div>
 
+    <!-- クリック解析モーダル -->
+    <div id="clickLogModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-2xl shadow-xl relative max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    📊 クリック解析
+                    <span id="clickLogKeyword" class="text-sm font-normal text-gray-500"></span>
+                </h3>
+                <button type="button" id="closeClickLogModal" class="text-gray-400 hover:text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
 
+            <div id="clickLogSummary" class="bg-blue-50 p-3 rounded-lg mb-4 text-sm">
+                <span class="text-blue-800 font-medium">総クリック数:</span>
+                <span id="clickLogTotalCount" class="font-bold text-blue-800">0</span>
+            </div>
+
+            <!-- ローディング -->
+            <div id="clickLogLoading" class="hidden text-center py-8">
+                <span class="animate-spin inline-block text-2xl">⟳</span>
+                <p class="text-gray-500 mt-2">読み込み中...</p>
+            </div>
+
+            <!-- ログテーブル -->
+            <div id="clickLogTableContainer" class="hidden">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-700">
+                            <th class="px-3 py-2 text-left rounded-tl-lg w-12">No.</th>
+                            <th class="px-3 py-2 text-left">クリック日時</th>
+                            <th class="px-3 py-2 text-left rounded-tr-lg">リファラ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clickLogTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ログなし -->
+            <div id="clickLogEmpty" class="hidden text-center py-8">
+                <p class="text-gray-500">クリックログはまだありません。</p>
+                <p class="text-xs text-gray-400 mt-1">この機能を有効にしてからのクリックが記録されます。</p>
+            </div>
+        </div>
     </div>
 
     <!-- 設定モーダル (パスワード変更 & 更新チェック) -->

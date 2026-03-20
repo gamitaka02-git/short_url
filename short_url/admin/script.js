@@ -150,6 +150,93 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // ======= 5.5. クリック解析モーダル =======
+    const clickLogModal = document.getElementById('clickLogModal');
+    const closeClickLogModal = document.getElementById('closeClickLogModal');
+    const clickLogKeyword = document.getElementById('clickLogKeyword');
+    const clickLogTotalCount = document.getElementById('clickLogTotalCount');
+    const clickLogLoading = document.getElementById('clickLogLoading');
+    const clickLogTableContainer = document.getElementById('clickLogTableContainer');
+    const clickLogTableBody = document.getElementById('clickLogTableBody');
+    const clickLogEmpty = document.getElementById('clickLogEmpty');
+
+    // クリックバッジのイベントリスナー
+    const clickLogBtns = document.querySelectorAll('.click-log-btn');
+    clickLogBtns.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const urlId = btn.getAttribute('data-id');
+            const keyword = btn.getAttribute('data-keyword');
+
+            // モーダルを開く
+            clickLogModal.classList.remove('hidden');
+            clickLogModal.classList.add('flex');
+            clickLogKeyword.textContent = `/ ${keyword}`;
+
+            // UIリセット
+            clickLogLoading.classList.remove('hidden');
+            clickLogTableContainer.classList.add('hidden');
+            clickLogEmpty.classList.add('hidden');
+            clickLogTableBody.innerHTML = '';
+
+            try {
+                const formData = new FormData();
+                formData.append('action', 'click_logs');
+                formData.append('url_id', urlId);
+
+                const res = await fetch('index.php', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                clickLogLoading.classList.add('hidden');
+
+                if (data.success) {
+                    clickLogTotalCount.textContent = data.click_count;
+
+                    if (data.logs && data.logs.length > 0) {
+                        data.logs.forEach((log, index) => {
+                            const tr = document.createElement('tr');
+                            tr.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+
+                            const refererDisplay = log.referer
+                                ? `<a href="${escapeHtml(log.referer)}" target="_blank" class="text-blue-600 hover:underline break-all">${escapeHtml(log.referer)}</a>`
+                                : '<span class="text-gray-400 italic">（直接アクセス／不明）</span>';
+
+                            tr.innerHTML = `
+                                <td class="px-3 py-2 text-gray-500">${index + 1}</td>
+                                <td class="px-3 py-2 whitespace-nowrap">${escapeHtml(log.clicked_at)}</td>
+                                <td class="px-3 py-2 text-xs">${refererDisplay}</td>
+                            `;
+                            clickLogTableBody.appendChild(tr);
+                        });
+                        clickLogTableContainer.classList.remove('hidden');
+                    } else {
+                        clickLogEmpty.classList.remove('hidden');
+                    }
+                } else {
+                    clickLogEmpty.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error(err);
+                clickLogLoading.classList.add('hidden');
+                clickLogEmpty.classList.remove('hidden');
+            }
+        });
+    });
+
+    // HTMLエスケープ関数
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // モーダルを閉じる
+    if (closeClickLogModal) {
+        closeClickLogModal.addEventListener('click', () => {
+            clickLogModal.classList.add('hidden');
+            clickLogModal.classList.remove('flex');
+        });
+    }
+
     // ======= 6. パスワード変更機能 =======
     const passwordForm = document.getElementById('passwordForm');
     const passwordMessage = document.getElementById('passwordMessage');

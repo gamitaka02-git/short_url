@@ -15,6 +15,9 @@ if (file_exists($dbPath)) {
         $pdo = new PDO('sqlite:' . $dbPath);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         
+        // 外部キー制約を有効化
+        $pdo->exec("PRAGMA foreign_keys = ON");
+
         // configテーブルの存在確認
         $stmt = $pdo->query("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'config'");
         if ($stmt->fetch() !== false) {
@@ -23,6 +26,20 @@ if (file_exists($dbPath)) {
             if ($stmt->fetchColumn() === '1') {
                 $setup_done = true;
             }
+        }
+
+        // click_logs テーブルの自動マイグレーション（既存環境対応）
+        $stmt = $pdo->query("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'click_logs'");
+        if ($stmt->fetch() === false) {
+            $pdo->exec("
+                CREATE TABLE IF NOT EXISTS click_logs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    url_id INTEGER NOT NULL,
+                    clicked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    referer TEXT DEFAULT '',
+                    FOREIGN KEY (url_id) REFERENCES urls(id) ON DELETE CASCADE
+                )
+            ");
         }
     } catch (Exception $e) {
         // DB接続に失敗した場合は未セットアップとみなし、セットアップ画面へ進む
