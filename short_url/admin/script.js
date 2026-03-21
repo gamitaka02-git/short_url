@@ -159,6 +159,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const clickLogTableContainer = document.getElementById('clickLogTableContainer');
     const clickLogTableBody = document.getElementById('clickLogTableBody');
     const clickLogEmpty = document.getElementById('clickLogEmpty');
+    const csvDownloadBtn = document.getElementById('csvDownloadBtn');
+
+    // CSV出力用: 現在表示中のログデータを保持
+    let currentClickLogs = [];
+    let currentClickKeyword = '';
 
     // クリックバッジのイベントリスナー
     const clickLogBtns = document.querySelectorAll('.click-log-btn');
@@ -190,6 +195,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     clickLogTotalCount.textContent = data.click_count;
+
+                    // CSV出力用にデータを保持
+                    currentClickLogs = data.logs || [];
+                    currentClickKeyword = data.keyword || keyword;
 
                     if (data.logs && data.logs.length > 0) {
                         data.logs.forEach((log, index) => {
@@ -234,6 +243,43 @@ document.addEventListener('DOMContentLoaded', () => {
         closeClickLogModal.addEventListener('click', () => {
             clickLogModal.classList.add('hidden');
             clickLogModal.classList.remove('flex');
+        });
+    }
+
+    // ======= 5.6. CSVダウンロード機能 =======
+    if (csvDownloadBtn) {
+        csvDownloadBtn.addEventListener('click', () => {
+            if (currentClickLogs.length === 0) {
+                alert('ダウンロードするクリックログがありません。');
+                return;
+            }
+
+            // BOM付きUTF-8 CSVを生成
+            const bom = '\uFEFF';
+            const header = 'No.,クリック日時,リファラ';
+            const rows = currentClickLogs.map((log, index) => {
+                const referer = log.referer || '（直接アクセス／不明）';
+                // CSVエスケープ: ダブルクォートを含む場合はエスケープ
+                const escapeCsv = (val) => {
+                    if (val.includes('"') || val.includes(',') || val.includes('\n')) {
+                        return '"' + val.replace(/"/g, '""') + '"';
+                    }
+                    return val;
+                };
+                return `${index + 1},${escapeCsv(log.clicked_at)},${escapeCsv(referer)}`;
+            });
+
+            const csvContent = bom + header + '\n' + rows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `click_log_${currentClickKeyword}_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         });
     }
 

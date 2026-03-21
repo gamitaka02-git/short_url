@@ -390,9 +390,17 @@ $fullBaseUrl = $protocol . $domain . $dirStr;
                 </button>
             </div>
 
-            <div id="clickLogSummary" class="bg-blue-50 p-3 rounded-lg mb-4 text-sm">
-                <span class="text-blue-800 font-medium">総クリック数:</span>
-                <span id="clickLogTotalCount" class="font-bold text-blue-800">0</span>
+            <div id="clickLogSummary" class="bg-blue-50 p-3 rounded-lg mb-4 text-sm flex items-center justify-between">
+                <div>
+                    <span class="text-blue-800 font-medium">総クリック数:</span>
+                    <span id="clickLogTotalCount" class="font-bold text-blue-800">0</span>
+                </div>
+                <button type="button" id="csvDownloadBtn" class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded shadow transition" title="クリックログをCSVでダウンロード">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    CSV出力
+                </button>
             </div>
 
             <!-- ローディング -->
