@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Short_URL｜自社ドメイン専用・サーバー設置型短縮URL生成ツール</title>
-    <meta name="description" content="自社ドメインで短縮URLを生成・管理できるサーバー設置型ツール。500円買い切り、月額費用0円、クリック解析機能搭載。">
+    <title>Short_URL｜サーバー設置型短縮URL生成ツール</title>
+    <meta name="description" content="自社ドメイン（独自ドメイン）で短縮URLを生成・管理できるサーバー設置型ツール。500円買い切り、月額費用0円、クリック解析機能搭載。">
     <meta name="robots" content="noindex">
 
     <!-- Google Fonts -->
@@ -35,6 +35,9 @@
 
     <!-- ===== Hero Section (FV) ===== -->
     <section id="hero">
+        <!-- Particle Canvas -->
+        <canvas id="hero-canvas" class="network-canvas"></canvas>
+
         <!-- Background decoration -->
         <div class="hero-bg-decor">
             <div class="hero-bg-decor__orb hero-bg-decor__orb--accent"></div>
@@ -78,7 +81,7 @@
             <!-- CTA Button -->
             <div class="lp-hero__cta-wrap animate-fade-in-up" style="animation-delay: 0.5s; opacity: 0;">
                 <a href="checkout.php" id="hero-cta-button" class="lp-cta-button">
-                    今すぐ購入して設置する（500円）
+                    今すぐ購入して設置する！
                     <i data-lucide="arrow-right"></i>
                 </a>
                 <p class="lp-hero__stripe-note">
@@ -172,7 +175,7 @@
                 <!-- Benefit 01 -->
                 <div class="scroll-reveal benefit-row">
                     <div class="benefit-row__visual">
-                        <img src="img/placeholder.jpg" alt="自社ドメインでの短縮URL" class="benefit-row__image">
+                        <img src="img/img02.png" alt="自社ドメインでの短縮URL" class="benefit-row__image">
                     </div>
                     <div class="benefit-row__content">
                         <span class="benefit-row__number">01</span>
@@ -185,7 +188,7 @@
                 <!-- Benefit 02 -->
                 <div class="scroll-reveal benefit-row benefit-row--reverse">
                     <div class="benefit-row__visual">
-                        <img src="img/placeholder.jpg" alt="データの完全所有" class="benefit-row__image">
+                        <img src="img/img03.png" alt="データの完全所有" class="benefit-row__image">
                     </div>
                     <div class="benefit-row__content">
                         <span class="benefit-row__number">02</span>
@@ -198,7 +201,7 @@
                 <!-- Benefit 03 -->
                 <div class="scroll-reveal benefit-row">
                     <div class="benefit-row__visual">
-                        <img src="img/placeholder.jpg" alt="圧倒的コスパ" class="benefit-row__image">
+                        <img src="img/img05.png" alt="圧倒的コスパ" class="benefit-row__image">
                     </div>
                     <div class="benefit-row__content">
                         <span class="benefit-row__number">03</span>
@@ -211,7 +214,7 @@
                 <!-- Benefit 04 -->
                 <div class="scroll-reveal benefit-row benefit-row--reverse">
                     <div class="benefit-row__visual">
-                        <img src="img/placeholder.jpg" alt="メンテナンスフリー" class="benefit-row__image">
+                        <img src="img/img04.png" alt="メンテナンスフリー" class="benefit-row__image">
                     </div>
                     <div class="benefit-row__content">
                         <span class="benefit-row__number">04</span>
@@ -276,7 +279,7 @@
                 </h2>
             </div>
             <div class="scroll-reveal demo-frame">
-                <img src="img/placeholder.jpg" alt="Short_URL管理画面のスクリーンショット" id="demo-screenshot">
+                <img src="img/img01.png" alt="Short_URL管理画面のスクリーンショット" id="demo-screenshot">
             </div>
         </div>
     </section>
@@ -313,7 +316,7 @@
                     </button>
                     <div class="faq-content" style="max-height: 0;">
                         <div class="faq-content__inner">
-                            <p class="faq-content__text">「Filezilla」などのFTPツール、もしくはサーバーの「ファイルマネージャー」にてツールのフォルダごとドラッグ＆ドロップで設置するだけで設置できます。また初回はログインパスワードを設定し、発行されたライセンスを入力していただくことでご利用になれます。</p>
+                            <p class="faq-content__text">「Filezilla」などのFTPツール、もしくはサーバーの「ファイルマネージャー」にて設置することができます。また初回はログインパスワードを設定し、発行されたライセンスを入力していただくことでご利用になれます。</p>
                         </div>
                     </div>
                 </div>
@@ -352,7 +355,7 @@
                     </button>
                     <div class="faq-content" style="max-height: 0;">
                         <div class="faq-content__inner">
-                            <p class="faq-content__text">はい、クリックデータは管理画面からCSV形式でエクスポートが可能です。データ分析やレポート作成にご活用ください。</p>
+                            <p class="faq-content__text">はい、クリックの解析データは管理画面からCSV形式でエクスポートが可能です。データ分析やレポート作成にご活用ください。</p>
                         </div>
                     </div>
                 </div>
@@ -362,6 +365,9 @@
 
     <!-- ===== CTA Section ===== -->
     <section id="cta-section" class="section-padding">
+        <!-- Particle Canvas -->
+        <canvas id="cta-canvas" class="network-canvas"></canvas>
+
         <!-- Background decoration -->
         <div class="cta-bg-decor">
             <div class="cta-bg-decor__orb--accent"></div>
@@ -420,7 +426,7 @@
 
                 <!-- Stripe決済ボタン -->
                 <a href="checkout.php" id="checkout-button" class="lp-cta-button lp-cta-button--lg">
-                    今すぐ購入して設置する（500円）
+                    利用規約に同意して購入する
                     <i data-lucide="arrow-right"></i>
                 </a>
 
@@ -428,6 +434,7 @@
                     <i data-lucide="lock"></i>
                     決済はStripeで安全に行われます
                 </p>
+                <p class="tarm-link"><a href="terms.php">利用規約</a></p>
             </div>
         </div>
     </section>
@@ -435,10 +442,11 @@
     <!-- ===== Footer ===== -->
     <footer class="lp-footer">
         <div class="container-xl">
-            <a href="#" class="lp-footer__logo">
-                <i data-lucide="link-2"></i>
-                Short_URL
-            </a>
+            <div class="lp-footer__links">
+                <a href="terms.php">利用規約</a>
+                <a href="privacy.php">プライバシーポリシー</a>
+                <a href="law.php">特定商取引法に基づく表記</a>
+            </div>
             <p class="lp-footer__copyright">&copy; 2026 Gamitaka Tools. All rights reserved.</p>
         </div>
     </footer>

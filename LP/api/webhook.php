@@ -85,6 +85,8 @@ if ($event->type === 'checkout.session.completed') {
         $body .= "【ツール・ダウンロードURL】\n";
         $body .= "以下のURLよりツールのダウンロードをお願いいたします。\n";
         $body .= (defined('GITHUB_RELEASE_URL') ? GITHUB_RELEASE_URL : 'https://gamitaka.com/short_url/download_shortURL') . "\n\n";
+        $body .= "【Short_URLの解説はこちら】\n";
+        $body .= "https://gamitaka.com/shorturl-release\n\n";
         $body .= "【お問い合わせ先】\n";
         $body .= "ご不明な点がございましたら、以下のメールアドレスまでお問い合わせください。\n";
         $body .= (defined('SUPPORT_EMAIL') ? SUPPORT_EMAIL : 'tools@gamitaka.com') . "\n\n";
