@@ -54,15 +54,15 @@
             </div>
 
             <h1 class="lp-hero__title animate-fade-in-up" style="animation-delay: 0.1s; opacity: 0;">
-                その1クリックを、<br class="br-mobile"><span class="accent">信頼</span>に変える。
+                <span class="accent">独自ドメイン</span>で短縮URLを生成。<br>クリック数も即座に計測！
             </h1>
 
             <p class="lp-hero__lead animate-fade-in-up" style="animation-delay: 0.2s; opacity: 0;">
-                自社ドメイン（独自ドメイン）専用・サーバー設置型<br class="br-desktop">短縮URL生成ツール<strong>『Short_URL』</strong>
+                自社ドメイン（独自ドメイン）専用・サーバー設置型。<br class="br-desktop">あなたのブランドでURLを短縮し、<br class="br-mobile">貴重なクリックデータをあなたの資産に。
             </p>
 
             <p class="lp-hero__sub animate-fade-in-up" style="animation-delay: 0.3s; opacity: 0;">
-                あなたのドメインで、信頼と集まるデータを、あなただけのものに。
+                もう外部サービスに依存しない。圧倒的コスパで始める次世代の短縮URL管理。
             </p>
 
             <!-- Badges -->
@@ -81,7 +81,7 @@
             <!-- CTA Button -->
             <div class="lp-hero__cta-wrap animate-fade-in-up" style="animation-delay: 0.5s; opacity: 0;">
                 <a href="checkout.php" id="hero-cta-button" class="lp-cta-button">
-                    今すぐ購入して設置する！
+                    今すぐ自分のドメインで短縮URLを始める！
                     <i data-lucide="arrow-right"></i>
                 </a>
                 <p class="lp-hero__stripe-note">
@@ -245,7 +245,7 @@
                         <i data-lucide="mouse-pointer-click"></i>
                     </div>
                     <h3 class="feature-card__title">詳細クリック解析</h3>
-                    <p class="feature-card__text">クリック回数、アクセス日時、リファラ（参照元）を自動で記録。<br>マーケティングの改善に役立つデータが手に入ります。</p>
+                    <p class="feature-card__text">クリック数・流入元を自動記録。<br>どの媒体が効果的か一目で分かり<br>最適な施策に集中できます！</p>
                 </div>
 
                 <!-- Feature 2 -->
@@ -254,7 +254,7 @@
                         <i data-lucide="zap"></i>
                     </div>
                     <h3 class="feature-card__title">超簡単セットアップ</h3>
-                    <p class="feature-card__text">サーバーにアップロードして <code class="inline-code">https://ドメイン/short_url(フォルダ名は変更可)/</code> にアクセス。あとはパスワードの設定とライセンスの認証をするだけで、数分で使い始められます。</p>
+                    <p class="feature-card__text">サーバーに上げるだけの簡単設置。<br>購入後すぐに使える設計なので、<br>今日から計測をスタート可能！</p>
                 </div>
 
                 <!-- Feature 3 -->
@@ -263,7 +263,7 @@
                         <i data-lucide="globe"></i>
                     </div>
                     <h3 class="feature-card__title">独自ドメイン対応</h3>
-                    <p class="feature-card__text">あなたが所有するドメインで短縮URLを生成。ブランドイメージを損なわず、ユーザーに安心感を与えます。</p>
+                    <p class="feature-card__text">あなたのドメインで短縮URL生成。<br>怪しい見慣れないURLを無くし、<br>クリック率のアップに貢献！</p>
                 </div>
             </div>
         </div>
@@ -272,14 +272,38 @@
     <!-- ===== Screenshot / Demo Section ===== -->
     <section id="demo" class="section-padding">
         <div class="container-md">
-            <div class="section-header scroll-reveal" style="margin-bottom: 3rem;">
+            <div class="section-header scroll-reveal">
                 <p class="section-label">Demo</p>
                 <h2 class="section-title">
                     管理画面<span class="accent">イメージ</span>
                 </h2>
             </div>
+            <div class="scroll-reveal demo-info">
+                <div class="demo-info__card">
+                    <h3>
+                        <i data-lucide="mouse-pointer-2" class="icon-accent"></i>
+                        迷わない。10秒で生成完了。
+                    </h3>
+                    <p>
+                        マニュアルは不要です。管理画面から「転送先の長いURL」を貼り付け、好きな「識別子（スラッグ）」を決めるだけ。たったこれだけのステップで、あなた専用の短縮URLが発行されます。
+                    </p>
+                </div>
+            </div>
+
             <div class="scroll-reveal demo-frame">
                 <img src="img/img01.png" alt="Short_URL管理画面のスクリーンショット" id="demo-screenshot">
+            </div>
+
+            <div class="scroll-reveal demo-info">
+                <div class="demo-info__card">
+                    <h3>
+                        <i data-lucide="line-chart" class="icon-emerald"></i>
+                        「短縮」の先にある、分析と改善。
+                    </h3>
+                    <p>
+                        同じURLでも、SNS用・広告用・メルマガ用と複数の短縮URLを作ることで「どの媒体が一番反応が良いか」のA/Bテストが可能に。自前サーバーに蓄積されるデータだからこそ、ビジネスの改善に100%活用できます。
+                    </p>
+                </div>
             </div>
         </div>
     </section>
@@ -426,7 +450,7 @@
 
                 <!-- Stripe決済ボタン -->
                 <a href="checkout.php" id="checkout-button" class="lp-cta-button lp-cta-button--lg">
-                    利用規約に同意して購入する
+                    今すぐ自分のドメインで短縮URLを始める！
                     <i data-lucide="arrow-right"></i>
                 </a>
 
@@ -435,6 +459,14 @@
                     決済はStripeで安全に行われます
                 </p>
                 <p class="tarm-link"><a href="terms.php">利用規約</a></p>
+            </div>
+            
+            <div class="scroll-reveal author-proof">
+                <p class="author-proof__text">
+                    <i data-lucide="award"></i>
+                    延べ3,000件以上のWordPressサポート実績の<br>Web制作・サポートの専門家が提供。<br>
+                    <span class="author-proof__note">ブロガー・講師歴10年以上の経験から、本当に使いやすいツールを開発しました。</span>
+                </p>
             </div>
         </div>
     </section>

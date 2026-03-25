@@ -1471,3 +1471,87 @@ p.tarm-link {
     height: 1rem;
 }
 
+
+/* ===================================
+   17. Demo Section Info
+   =================================== */
+.demo-info {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.demo-frame {
+    margin-bottom: 1.5rem;
+}
+
+.demo-info__card {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    padding: 1.5rem;
+    border-radius: var(--radius-xl);
+    text-align: center;
+}
+
+.demo-info__card h3 {
+    font-size: 1.5rem;
+    color: var(--navy-900);
+    margin-bottom: 0.75rem;
+}
+
+.demo-info__card h3 i {
+    vertical-align: middle;
+    margin-right: 0.5rem;
+}
+
+.demo-info__card h3 i.icon-accent {
+    color: var(--accent);
+}
+
+.demo-info__card h3 i.icon-emerald {
+    color: var(--emerald-400);
+}
+
+.demo-info__card p {
+    color: var(--navy-700);
+    font-weight: 500;
+    line-height: 1.8;
+    max-width: 37.5rem; /* 600px */
+    margin: 0 auto;
+}
+
+/* ===================================
+   18. Author Proof
+   =================================== */
+.author-proof {
+    margin-top: 3rem;
+}
+
+.author-proof__text {
+    font-weight: bold;
+    color: #fff;
+    font-size: 1.1rem;
+    text-align: center;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    max-width: 37.5rem; /* 600px */
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.author-proof__text i {
+    color: var(--accent);
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+.author-proof__note {
+    font-size: 0.9rem;
+    font-weight: normal;
+    margin-top: 0.5rem;
+    display: block;
+    color: var(--navy-100);
+}

@@ -31,10 +31,12 @@ try {
         $sig_header,
         STRIPE_WEBHOOK_SECRET
     );
-} catch (\UnexpectedValueException $e) {
+}
+catch (\UnexpectedValueException $e) {
     http_response_code(400);
     exit();
-} catch (\Stripe\Exception\SignatureVerificationException $e) {
+}
+catch (\Stripe\Exception\SignatureVerificationException $e) {
     http_response_code(400);
     exit();
 }
@@ -77,7 +79,7 @@ if ($event->type === 'checkout.session.completed') {
         mb_internal_encoding("UTF-8");
 
         $subject = "【重要】ライセンスキーのご送付 / Short_URL｜Gamitaka Tools";
-        
+
         $body = "この度は「Short_URL」をご購入いただき、誠にありがとうございます。\n\n";
         $body .= "以下の通り、ライセンスキーを発行いたしました。\n\n";
         $body .= "【ライセンスキー】\n";
@@ -99,7 +101,7 @@ if ($event->type === 'checkout.session.completed') {
         $from_name = mb_encode_mimeheader("Short_URL 開発事務局", "UTF-8", "B") . " <{$from_email}>";
 
         // メールヘッダー
-        $headers  = "MIME-Version: 1.0\r\n";
+        $headers = "MIME-Version: 1.0\r\n";
         $headers .= "From: " . $from_name . "\r\n";
         $headers .= "Reply-To: " . $support_email . "\r\n";
         $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
@@ -108,10 +110,12 @@ if ($event->type === 'checkout.session.completed') {
         // メール送信の成否をログに記録（失敗しても例外にせず後続の200 OKへ進む）
         if (!mb_send_mail($customer_email, $subject, $body, $headers, "-f {$from_email}")) {
             error_log("Mail Deliver Error: Failed to send license key to $customer_email");
-        } else {
+        }
+        else {
             error_log("Mail Delivered: License key sent to $customer_email");
         }
-    } catch (PDOException $e) {
+    }
+    catch (PDOException $e) {
         error_log("DB Error in Webhook: " . $e->getMessage());
         http_response_code(500);
         exit();
