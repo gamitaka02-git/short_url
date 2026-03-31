@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Short_URL｜サーバー設置型短縮URL生成ツール</title>
     <meta name="description" content="自社ドメイン（独自ドメイン）で短縮URLを生成・管理できるサーバー設置型ツール。500円買い切り、月額費用0円、クリック解析機能搭載。">
-    <meta name="robots" content="noindex">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
