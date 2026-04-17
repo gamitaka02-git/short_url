@@ -161,12 +161,26 @@ if ($action === 'execute') {
     }
 
     $data = $data_list[0];
-    if (empty($data['zipball_url'])) {
+    
+    $zip_url = '';
+    // まずリリースに添付されたZIPアセットを優先して探す
+    if (!empty($data['assets'])) {
+        foreach ($data['assets'] as $asset) {
+            if (substr($asset['name'], -4) === '.zip') {
+                $zip_url = $asset['browser_download_url'];
+                break;
+            }
+        }
+    }
+    // アセットにZIPがなければ、Github自動生成のソースコードZIP(zipball_url)をフォールバックとして使用
+    if (empty($zip_url) && !empty($data['zipball_url'])) {
+        $zip_url = $data['zipball_url'];
+    }
+
+    if (empty($zip_url)) {
         echo json_encode(['success' => false, 'message' => 'ZIPダウンロードURLが見つかりません。']);
         exit;
     }
-
-    $zip_url = $data['zipball_url'];
     $tmp_dir = __DIR__ . '/_tmp_update_' . time();
     $zip_file = $tmp_dir . '/update.zip';
 
@@ -211,19 +225,33 @@ if ($action === 'execute') {
         exit;
     }
 
-    // GitHubからのZIP解凍時、中身は "owner-repo-hash/" のようなルートフォルダに入る
-    $extracted_folders = array_diff(scandir($extract_dir), array('.', '..'));
+    // どういう形式のZIPが解凍されたかを自動判定する
     $extracted_root = '';
-    foreach ($extracted_folders as $f) {
-        if (is_dir($extract_dir . '/' . $f)) {
-            $extracted_root = $extract_dir . '/' . $f . '/short_url'; // 'short_url' 配下が実際のツールファイル
-            break;
+    
+    // 展開先ディレクトリ内を再帰的に探索して 'admin/init.php' があるディレクトリを探す
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($extract_dir, RecursiveDirectoryIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::SELF_FIRST
+    );
+    
+    foreach ($iterator as $fileinfo) {
+        if ($fileinfo->isDir()) {
+            if (file_exists($fileinfo->getPathname() . '/admin/init.php')) {
+                // 見つかったディレクトリがツール本体のルートディレクトリ
+                $extracted_root = $fileinfo->getPathname();
+                break;
+            }
         }
+    }
+    
+    // 直下にadminディレクトリがあるかどうかもチェック
+    if (empty($extracted_root) && file_exists($extract_dir . '/admin/init.php')) {
+        $extracted_root = $extract_dir;
     }
 
     if (empty($extracted_root) || !is_dir($extracted_root)) {
         update_plugin_remove_dir($tmp_dir);
-        echo json_encode(['success' => false, 'message' => 'アップデートファイル内に必要なデータが見つかりませんでした。']);
+        echo json_encode(['success' => false, 'message' => 'アップデートファイル内に必要なデータ(admin/init.php)が見つかりませんでした。']);
         exit;
     }
 

@@ -1,6 +1,6 @@
 <?php
 // 現在のツールのバージョン (このファイルは自動アップデートで上書きされます)
-define('TOOL_VERSION', 'v1.0.3');
+define('TOOL_VERSION', 'v1.0.2');
 
 // 無限ループ防止
 if (basename($_SERVER['PHP_SELF']) === 'setup.php') {
