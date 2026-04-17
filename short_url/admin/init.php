@@ -1,6 +1,6 @@
 <?php
 // 現在のツールのバージョン (このファイルは自動アップデートで上書きされます)
-define('TOOL_VERSION', 'v1.0.2');
+define('TOOL_VERSION', 'v1.0.3');
 
 // 無限ループ防止
 if (basename($_SERVER['PHP_SELF']) === 'setup.php') {
@@ -57,6 +57,74 @@ if (!$setup_done) {
 
 // 設定ファイルを読み込む
 require_once __DIR__ . '/config.php';
+
+/**
+ * データをAES-256-CBCで暗号化する
+ * @param string $data
+ * @return string
+ */
+function encrypt_data($data) {
+    if (empty($data)) return $data;
+    
+    $method = 'aes-256-cbc';
+    $key = hash('sha256', SECRET_TOKEN, true);
+    $ivLength = openssl_cipher_iv_length($method);
+    $iv = openssl_random_pseudo_bytes($ivLength);
+    
+    $encrypted = openssl_encrypt($data, $method, $key, 0, $iv);
+    // ivと暗号化データを結合してBase64エンコード
+    $combined = base64_encode($encrypted . '::' . $iv);
+    
+    // 暗号化済みであることを示すプレフィックスを付ける
+    return 'ENC:' . $combined;
+}
+
+/**
+ * AES-256-CBCで暗号化されたデータを復号する
+ * @param string $data
+ * @return string
+ */
+function decrypt_data($data) {
+    if (empty($data)) return $data;
+    
+    // 暗号化プレフィックスがない場合は平文とみなしてそのまま返す
+    if (strpos($data, 'ENC:') !== 0) {
+        return $data;
+    }
+    
+    $combined = base64_decode(substr($data, 4));
+    if ($combined === false || strpos($combined, '::') === false) {
+        return $data; // デコード失敗時
+    }
+    
+    list($encrypted, $iv) = explode('::', $combined, 2);
+    $method = 'aes-256-cbc';
+    $key = hash('sha256', SECRET_TOKEN, true);
+    
+    $decrypted = openssl_decrypt($encrypted, $method, $key, 0, $iv);
+    return $decrypted !== false ? $decrypted : $data;
+}
+
+// 既存の平文データを暗号化する自動マイグレーション
+if ($setup_done && isset($pdo)) {
+    try {
+        $keys_to_encrypt = ['license_key'];
+        foreach ($keys_to_encrypt as $config_key) {
+            $stmt = $pdo->prepare("SELECT value FROM config WHERE key = :key");
+            $stmt->execute([':key' => $config_key]);
+            $value = $stmt->fetchColumn();
+            
+            if ($value !== false && !empty($value) && strpos($value, 'ENC:') !== 0) {
+                // 平文なので暗号化して保存
+                $encrypted_value = encrypt_data($value);
+                $updateStmt = $pdo->prepare("UPDATE config SET value = :value WHERE key = :key");
+                $updateStmt->execute([':value' => $encrypted_value, ':key' => $config_key]);
+            }
+        }
+    } catch (Exception $e) {
+        // マイグレーションエラー時はスキップ
+    }
+}
 
 /**
  * ライセンスキーを認証サーバーで検証する

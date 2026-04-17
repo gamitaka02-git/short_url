@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['license_key_update'])
     } else {
         $stmt = $pdo->prepare("INSERT INTO config (key, value) VALUES ('license_key', :value)");
     }
-    $stmt->execute([':value' => $new_license_key]);
+    $stmt->execute([':value' => encrypt_data($new_license_key)]);
     
     // 更新後はセッションの認証フラグをリセット
     unset($_SESSION['license_verified']);
@@ -51,6 +51,8 @@ try {
     $license_key = $stmt->fetchColumn();
     if ($license_key === false) {
         $license_key = '';
+    } else {
+        $license_key = decrypt_data($license_key);
     }
 } catch (Exception $e) {
     $license_key = '';
