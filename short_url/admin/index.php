@@ -165,6 +165,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    if ($action === 'reset_clicks') {
+        $id = $_POST['id'] ?? '';
+
+        if (empty($id)) {
+            echo json_encode(['success' => false, 'message' => '不正なリクエストです。']);
+            exit;
+        }
+
+        $pdo->beginTransaction();
+        try {
+            $stmt = $pdo->prepare("UPDATE urls SET click_count = 0 WHERE id = :id");
+            $stmt->execute([':id' => $id]);
+
+            $stmt = $pdo->prepare("DELETE FROM click_logs WHERE url_id = :id");
+            $stmt->execute([':id' => $id]);
+
+            $pdo->commit();
+            echo json_encode(['success' => true]);
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            echo json_encode(['success' => false, 'message' => 'リセットに失敗しました。']);
+        }
+        exit;
+    }
+
     if ($action === 'click_logs') {
         $url_id = $_POST['url_id'] ?? '';
 
@@ -345,7 +370,12 @@ $fullBaseUrl = $protocol . $domain . $dirStr;
                                     </button>
                                 </div>
                             </div>
-                            <div class="w-full md:w-auto flex gap-2">
+                            <div class="w-full md:w-auto flex flex-wrap gap-2 mt-2 md:mt-0">
+                                <button type="button"
+                                    class="reset-btn text-xs bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 rounded shadow w-full md:w-auto font-bold"
+                                    data-id="<?= $item['id'] ?>" data-keyword="<?= htmlspecialchars($item['keyword']) ?>" title="クリック数とログをリセット">
+                                    リセット
+                                </button>
                                 <button type="button"
                                     class="delete-btn text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded shadow w-full md:w-auto font-bold"
                                     data-id="<?= $item['id'] ?>" data-keyword="<?= htmlspecialchars($item['keyword']) ?>">

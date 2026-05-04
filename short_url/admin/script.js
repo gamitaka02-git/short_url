@@ -150,6 +150,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // ======= 5.1. クリック数リセット機能 =======
+    const resetBtns = document.querySelectorAll('.reset-btn');
+    resetBtns.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+            const keyword = btn.getAttribute('data-keyword');
+
+            if (!confirm(`本当にこの短縮URLのクリック数とログをリセットしますか？\n(スラッグ: ${keyword})\n※この操作は取り消せません。`)) {
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('action', 'reset_clicks');
+            formData.append('id', id);
+
+            try {
+                const res = await fetch('index.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message || 'リセットに失敗しました。');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('通信エラーが発生しました。');
+            }
+        });
+    });
+
     // ======= 5.5. クリック解析モーダル =======
     const clickLogModal = document.getElementById('clickLogModal');
     const closeClickLogModal = document.getElementById('closeClickLogModal');
