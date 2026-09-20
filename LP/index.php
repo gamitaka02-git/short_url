@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Short_URL｜サーバー設置型短縮URL生成ツール</title>
-    <meta name="description" content="自社ドメイン（独自ドメイン）で短縮URLを生成・管理できるサーバー設置型ツール。500円買い切り、月額費用0円、クリック解析機能搭載。">
+    <meta name="description" content="自社ドメイン（独自ドメイン）で短縮URLを生成・管理できるサーバー設置型ツール。ピン留め＆グループ機能でスマートに整理。500円買い切り、月額費用0円、クリック解析機能搭載。">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -53,15 +53,13 @@
             </div>
 
             <h1 class="lp-hero__title animate-fade-in-up" style="animation-delay: 0.1s; opacity: 0;">
-                <span class="accent">独自ドメイン</span>で短縮URLを生成。<br>クリック数も即座に計測！
+                <span class="accent">独自ドメイン</span>で短縮URLを生成。<br>スマートに管理するツール！
             </h1>
 
             <p class="lp-hero__lead animate-fade-in-up" style="animation-delay: 0.2s; opacity: 0;">
-                自社ドメイン（独自ドメイン）専用・サーバー設置型。<br class="br-desktop">あなたのブランドでURLを短縮し、<br class="br-mobile">貴重なクリックデータをあなたの資産に。
-            </p>
-
-            <p class="lp-hero__sub animate-fade-in-up" style="animation-delay: 0.3s; opacity: 0;">
-                もう外部サービスに依存しない。圧倒的コスパで始める次世代の短縮URL管理。
+                自社ドメイン（独自ドメイン）専用・サーバー設置型。<br class="br-desktop">
+                あなたのブランドでURLを短縮し、「ピン留め」＆「グループ機能」で、<br>
+                日常のリンク管理を快適に。
             </p>
 
             <!-- Badges -->
@@ -71,6 +69,9 @@
                 </span>
                 <span class="lp-badge lp-badge--free">
                     <i data-lucide="circle-dollar-sign"></i> 月額費用0円
+                </span>
+                <span class="lp-badge lp-badge--pin">
+                    <i data-lucide="pin"></i> ピン留め＆グループ管理
                 </span>
                 <span class="lp-badge lp-badge--analytics">
                     <i data-lucide="bar-chart-3"></i> 解析機能標準搭載
@@ -99,7 +100,7 @@
                 <h2 class="section-title">
                     こんな<span class="accent">悩み</span>はありませんか？
                 </h2>
-                <p class="section-subtitle">外部の短縮URLサービスに頼り続けることで、こんなリスクを抱えていませんか？</p>
+                <p class="section-subtitle">外部サービスのリスクや、URLが増えたことによる管理のストレスを抱えていませんか？</p>
             </div>
 
             <div class="problem-grid">
@@ -134,11 +135,11 @@
                 <div class="scroll-reveal problem-card">
                     <div class="problem-card__inner">
                         <div class="problem-card__icon">
-                            <i data-lucide="database"></i>
+                            <i data-lucide="search"></i>
                         </div>
                         <div>
-                            <h3 class="problem-card__title">クリックデータ、他社に握られてない？</h3>
-                            <p class="problem-card__text">外部サービスのサーバーに蓄積されるアクセスデータ。自分のビジネスの貴重なデータが、他社の資産になっているかもしれません。</p>
+                            <h3 class="problem-card__title">URLが増えて探すのが大変…</h3>
+                            <p class="problem-card__text">リンクを作るたびに一覧が埋もれ、「あの短縮URLどれだっけ？」と毎回探すハメになっていませんか？</p>
                         </div>
                     </div>
                 </div>
@@ -147,11 +148,11 @@
                 <div class="scroll-reveal problem-card">
                     <div class="problem-card__inner">
                         <div class="problem-card__icon">
-                            <i data-lucide="wallet"></i>
+                            <i data-lucide="folder-tree"></i>
                         </div>
                         <div>
-                            <h3 class="problem-card__title">月額コストがジワジワ負担に…</h3>
-                            <p class="problem-card__text">「月額○○円」の積み重ね。年間で計算すると結構な出費。もっとコスパの良い方法はないだろうか。</p>
+                            <h3 class="problem-card__title">媒体ごとの整理がぐちゃぐちゃ…</h3>
+                            <p class="problem-card__text">SNS用、メルマガ用、企画用など、どのURLがどの媒体向けなのか整理しきれず混乱していませんか？</p>
                         </div>
                     </div>
                 </div>
@@ -167,7 +168,7 @@
                 <h2 class="section-title">
                     Short_URLが<span class="accent">すべて解決</span>します
                 </h2>
-                <p class="section-subtitle">自社ドメインの短縮URLで、信頼性・データ・コストの課題をまとめて解消。</p>
+                <p class="section-subtitle">自社ドメインの短縮URLで、信頼性・データ・管理性・コストの課題をまとめて解消。</p>
             </div>
 
             <div class="benefits-list">
@@ -187,36 +188,49 @@
                 <!-- Benefit 02 -->
                 <div class="scroll-reveal benefit-row benefit-row--reverse">
                     <div class="benefit-row__visual">
-                        <img src="img/img03.png" alt="データの完全所有" class="benefit-row__image">
+                        <img src="img/img06.png" alt="ピン留めとグループ機能でスマートに管理" class="benefit-row__image">
                     </div>
                     <div class="benefit-row__content">
                         <span class="benefit-row__number">02</span>
-                        <h3 class="benefit-row__title">データの完全所有</h3>
-                        <p class="benefit-row__highlight benefit-row__highlight--emerald">貴重なクリックデータを資産化・リスク回避</p>
-                        <p class="benefit-row__text">クリック数・日時・リファラなどのアクセスデータはすべてあなたのサーバーに蓄積。外部サービスに依存しないから、サービス終了によるリンク切れの心配もゼロ。データはあなたの資産です。</p>
+                        <h3 class="benefit-row__title">増えても探す手間ゼロ！</h3>
+                        <p class="benefit-row__highlight benefit-row__highlight--purple">ピン留め＆グループ機能でスマートに整理</p>
+                        <p class="benefit-row__text">よく使うメインリンクは「ピン留め」で常に最前列に固定。さらに「X用」「メルマガ用」「企画ごと」などにグループ分けして、タブをクリックするだけで瞬時に絞り込めます。タブはドラッグ＆ドロップで左右入れ替えOK！短縮URLが何十本に増えてもごちゃつかず、日々の発信作業がサクサク進みます。</p>
                     </div>
                 </div>
 
                 <!-- Benefit 03 -->
                 <div class="scroll-reveal benefit-row">
                     <div class="benefit-row__visual">
-                        <img src="img/img05.png" alt="圧倒的コスパ" class="benefit-row__image">
+                        <img src="img/img03.png" alt="データの完全所有" class="benefit-row__image">
                     </div>
                     <div class="benefit-row__content">
                         <span class="benefit-row__number">03</span>
-                        <h3 class="benefit-row__title">圧倒的コスパ</h3>
-                        <p class="benefit-row__highlight benefit-row__highlight--yellow">500円買い切り・一生モノのツール</p>
-                        <p class="benefit-row__text">一度買えばずっと使える。月額費用は一切かかりません。年間のサブスクリプション費用と比べれば、圧倒的なコストパフォーマンスを実現。ランニングコストを気にせず運用できます。</p>
+                        <h3 class="benefit-row__title">データの完全所有</h3>
+                        <p class="benefit-row__highlight benefit-row__highlight--emerald">貴重なクリックデータを資産化・リスク回避</p>
+                        <p class="benefit-row__text">クリック数・日時・リファラなどのアクセスデータはすべてあなたのサーバーに蓄積。外部サービスに依存しないから、サービス終了によるリンク切れの心配もゼロ。データはあなたの資産です。</p>
                     </div>
                 </div>
 
                 <!-- Benefit 04 -->
                 <div class="scroll-reveal benefit-row benefit-row--reverse">
                     <div class="benefit-row__visual">
-                        <img src="img/img04.png" alt="メンテナンスフリー" class="benefit-row__image">
+                        <img src="img/img05.png" alt="圧倒的コスパ" class="benefit-row__image">
                     </div>
                     <div class="benefit-row__content">
                         <span class="benefit-row__number">04</span>
+                        <h3 class="benefit-row__title">圧倒的コスパ</h3>
+                        <p class="benefit-row__highlight benefit-row__highlight--yellow">500円買い切り・一生モノのツール</p>
+                        <p class="benefit-row__text">一度買えばずっと使える。月額費用は一切かかりません。年間のサブスクリプション費用と比べれば、圧倒的なコストパフォーマンスを実現。ランニングコストを気にせず運用できます。</p>
+                    </div>
+                </div>
+
+                <!-- Benefit 05 -->
+                <div class="scroll-reveal benefit-row">
+                    <div class="benefit-row__visual">
+                        <img src="img/img04.png" alt="メンテナンスフリー" class="benefit-row__image">
+                    </div>
+                    <div class="benefit-row__content">
+                        <span class="benefit-row__number">05</span>
                         <h3 class="benefit-row__title">簡単メンテナンス</h3>
                         <p class="benefit-row__highlight benefit-row__highlight--blue">管理画面からクリックするだけの簡単更新</p>
                         <p class="benefit-row__text">アップデートがあっても、管理画面のボタンをクリックするだけ。技術的な知識がなくても、常に最新の状態を保てます。面倒な運用・保守作業から解放されます。</p>
@@ -241,19 +255,19 @@
                 <!-- Feature 1 -->
                 <div class="scroll-reveal feature-card">
                     <div class="feature-card__icon">
-                        <i data-lucide="mouse-pointer-click"></i>
+                        <i data-lucide="pin"></i>
                     </div>
-                    <h3 class="feature-card__title">詳細クリック解析</h3>
-                    <p class="feature-card__text">クリック数・流入元を自動記録。<br>どの媒体が効果的か一目で分かり<br>最適な施策に集中できます！</p>
+                    <h3 class="feature-card__title">よく使うURLをピン留め</h3>
+                    <p class="feature-card__text">メインの導線やプロフィールURLを<br>常に最上部に固定表示。<br>探す手間をゼロにして即コピー！</p>
                 </div>
 
                 <!-- Feature 2 -->
                 <div class="scroll-reveal feature-card">
                     <div class="feature-card__icon">
-                        <i data-lucide="zap"></i>
+                        <i data-lucide="folder-kanban"></i>
                     </div>
-                    <h3 class="feature-card__title">超簡単セットアップ</h3>
-                    <p class="feature-card__text">サーバーに上げるだけの簡単設置。<br>購入後すぐに使える設計なので、<br>今日から計測をスタート可能！</p>
+                    <h3 class="feature-card__title">タブ切り替えグループ機能</h3>
+                    <p class="feature-card__text">媒体別や企画ごとにタブで瞬時に分類。<br>タブはドラッグ＆ドロップで<br>左右入れ替えOK！<br>あなた好みの並び順で管理できます！</p>
                 </div>
 
                 <!-- Feature 3 -->
@@ -261,8 +275,35 @@
                     <div class="feature-card__icon">
                         <i data-lucide="globe"></i>
                     </div>
-                    <h3 class="feature-card__title">独自ドメイン対応</h3>
+                    <h3 class="feature-card__title">独自ドメイン完全対応</h3>
                     <p class="feature-card__text">あなたのドメインで短縮URL生成。<br>怪しい見慣れないURLを無くし、<br>クリック率のアップに貢献！</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="scroll-reveal feature-card">
+                    <div class="feature-card__icon">
+                        <i data-lucide="mouse-pointer-click"></i>
+                    </div>
+                    <h3 class="feature-card__title">詳細クリック解析</h3>
+                    <p class="feature-card__text">クリック数・流入元を自動記録。<br>どの媒体が効果的か一目で分かり<br>最適な施策に集中できます！</p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="scroll-reveal feature-card">
+                    <div class="feature-card__icon">
+                        <i data-lucide="zap"></i>
+                    </div>
+                    <h3 class="feature-card__title">迷わず10秒で発行</h3>
+                    <p class="feature-card__text">転送先URLを貼って<br>スラッグを決めるだけ。<br>誰でも直感的にすぐ使える<br>超シンプル設計！</p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="scroll-reveal feature-card">
+                    <div class="feature-card__icon">
+                        <i data-lucide="server"></i>
+                    </div>
+                    <h3 class="feature-card__title">サーバーに置くだけの簡単設置</h3>
+                    <p class="feature-card__text">サーバーに上げるだけの簡単設置。<br>購入後すぐに使える設計なので、<br>今日から計測をスタート可能！</p>
                 </div>
             </div>
         </div>
@@ -301,6 +342,18 @@
                     </h3>
                     <p>
                         同じURLでも、SNS用・広告用・メルマガ用と複数の短縮URLを作ることで「どの媒体が一番反応が良いか」のA/Bテストが可能に。自前サーバーに蓄積されるデータだからこそ、ビジネスの改善に100%活用できます。
+                    </p>
+                </div>
+            </div>
+
+            <div class="scroll-reveal demo-info">
+                <div class="demo-info__card">
+                    <h3>
+                        <i data-lucide="pin" class="icon-accent"></i>
+                        ピン留め＆グループ分けで、毎日の運用をスマートに。
+                    </h3>
+                    <p>
+                        日常的によく使うメインリンクは「ピン留め」で常に一番上に常駐。さらに用途ごとの「グループタブ」はドラッグ＆ドロップで左右入れ替えOK！短縮URLをたくさん作るヘビーユーザーほど実感できる、探すストレスゼロの快適な操作性を実現しました。
                     </p>
                 </div>
             </div>
@@ -382,6 +435,19 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- FAQ 6 -->
+                <div class="scroll-reveal faq-item">
+                    <button class="faq-toggle" aria-expanded="false">
+                        <span class="faq-toggle__question">ピン留めやグループ機能はどのように使いますか？</span>
+                        <i data-lucide="chevron-down" class="faq-icon"></i>
+                    </button>
+                    <div class="faq-content" style="max-height: 0;">
+                        <div class="faq-content__inner">
+                            <p class="faq-content__text">管理画面で各URLに「ピン留め」を設定すると、常に一覧の一番上に表示されます。また「SNS用」「メルマガ用」など自由にグループ名を設定でき、上部のタブをクリックするだけで該当グループのURLを瞬時に切り替えて表示できます。タブはドラッグ＆ドロップで左右入れ替えOKですので、使いやすい並び順に自由にカスタマイズ可能です。</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -424,6 +490,10 @@
                     <li class="pricing-features__item">
                         <i data-lucide="check-circle-2"></i>
                         月額費用なし・永久ライセンス
+                    </li>
+                    <li class="pricing-features__item">
+                        <i data-lucide="check-circle-2"></i>
+                        ピン留め＆グループ管理機能搭載
                     </li>
                     <li class="pricing-features__item">
                         <i data-lucide="check-circle-2"></i>
